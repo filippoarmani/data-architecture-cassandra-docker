@@ -1,15 +1,13 @@
 package com.example.cassandra;
 
+import java.io.FileWriter;
 import java.time.LocalDate;
 
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import com.datastax.oss.driver.api.core.DefaultConsistencyLevel;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
-import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.*;
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,16 +16,46 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.SimpleStatement;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.cql.QueryTrace;
+
+import java.util.Optional;
+
 public class App {
 
+    public static void saveTrace(ResultSet resultSet) {
+        if (resultSet != null) {
+            QueryTrace trace = resultSet.getExecutionInfo().getQueryTrace();
+
+            if (!trace.getEvents().isEmpty()) {
+                try (FileWriter writer = new FileWriter("traces/" + trace.getTracingId() + ".txt")) {
+                    writer.write("Trace ID: " + trace.getTracingId() + "\n");
+                    trace.getEvents().forEach(event -> {
+                        try {
+                            writer.write(event.getSource() + " " + event.getActivity() + " " + event.getSourceElapsedMicros() + "ms\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static List<Flight> getFlightsFromAirport(CqlSession session, String airportCode){
-        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM flight WHERE departure='" + airportCode + "';");
+        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM flight WHERE departure='" + airportCode + "';").setTracing(true);
         return getFlights(session, query);
     }
 
     public static Airport getAirportFromIATA(CqlSession session, String airportCode) {
-        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM airport WHERE IATA_code='" + airportCode + "';");
+        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM airport WHERE IATA_code='" + airportCode + "';").setTracing(true);
         ResultSet rs = session.execute(query);
+
+        saveTrace(rs);
 
         Row row = rs.one();
         Airport airport = null;
@@ -52,12 +80,14 @@ public class App {
     }
 
     public static List<Flight> getFlightsFromDepartureAndDestination(CqlSession session, String departureCode, String destinationCode) {
-        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM flight WHERE departure='" + departureCode + "' AND destination='" + destinationCode + "';");
+        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM flight WHERE departure='" + departureCode + "' AND destination='" + destinationCode + "';").setTracing(true);
         return getFlights(session, query);
     }
 
     private static List<Flight> getFlights(CqlSession session,SimpleStatement query) {
         ResultSet rs = session.execute(query);
+
+        saveTrace(rs);
 
         List<Flight> flightList = new ArrayList<>();
 
@@ -80,8 +110,10 @@ public class App {
     }
 
     public static List<Seat> getSeats(CqlSession session, String flightCode) {
-        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM seat WHERE flight='" + flightCode + "';");
+        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM seat WHERE flight='" + flightCode + "';").setTracing(true);
         ResultSet rs = session.execute(query);
+
+        saveTrace(rs);
 
         List<Seat> seatList = new ArrayList<>();
 
@@ -116,8 +148,10 @@ public class App {
     }
 
     public static String getSeatStatus(CqlSession session, String flightCode, String idSeat) throws Exception {
-        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM seat WHERE flight='" + flightCode + "' AND id='"+ idSeat +"';");
+        SimpleStatement query = SimpleStatement.newInstance("SELECT * FROM seat WHERE flight='" + flightCode + "' AND id='"+ idSeat +"';").setTracing(true);
         ResultSet rs = session.execute(query);
+
+        saveTrace(rs);
 
         Row row = rs.one();
 
@@ -195,7 +229,9 @@ public class App {
                 Integer.parseInt(user.getDate_of_birth().substring(8, 10))
         );
 
-        ResultSet resultSet = session.execute(updateStmt.bind(user.getBalance(), birthDate, user.getDocument_info(), user.getName(), user.getSurname(), seat.getFlight(), seat.getId()).setConsistencyLevel(ConsistencyLevel.QUORUM));
+        ResultSet resultSet = session.execute(updateStmt.bind(user.getBalance(), birthDate, user.getDocument_info(), user.getName(), user.getSurname(), seat.getFlight(), seat.getId()).setTracing(true).setConsistencyLevel(ConsistencyLevel.QUORUM));
+
+        saveTrace(resultSet);
 
         if (!resultSet.wasApplied()) {
             return user.getName() + " " + user.getSurname() + ": seat reservation " + seat.getId() + " failed. It might already be 'Occupied'.";
@@ -227,25 +263,37 @@ public class App {
         if(table.equals("airport")) {
             System.out.println("Insert Airport");
             for (String l1: dati.get(0)) {
-                SimpleStatement query = SimpleStatement.newInstance(
-                        "INSERT INTO airport (Size, Country, Country_code, Geo_Point, IATA_code, ICAO_code, Name, Name_en, Name_fr, Operator, Phone, Website) VALUES " + l1 + ";");
-                query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
-                session.execute(query);
+                try {
+                    SimpleStatement query = SimpleStatement.newInstance(
+                            "INSERT INTO airport (Size, Country, Country_code, Geo_Point, IATA_code, ICAO_code, Name, Name_en, Name_fr, Operator, Phone, Website) VALUES " + l1 + ";");
+                    query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
+                    session.execute(query);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         } else {
             if(table.equals("flight")) {
                 System.out.println("Insert Flight");
                 for (String l2: dati.get(1)) {
-                    SimpleStatement query = SimpleStatement.newInstance("INSERT INTO flight (ID, Departure, Destination, Number_of_Seats, Day, Hour, Operator, Duration, Price_per_Person) VALUES " + l2 + ";");
-                    query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
-                    session.execute(query);
+                    try {
+                        SimpleStatement query = SimpleStatement.newInstance("INSERT INTO flight (ID, Departure, Destination, Number_of_Seats, Day, Hour, Operator, Duration, Price_per_Person) VALUES " + l2 + ";");
+                        query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
+                        session.execute(query);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             } else {
                 System.out.println("Insert Seat");
                 for (String l3: dati.get(2)) {
-                    SimpleStatement query = SimpleStatement.newInstance("INSERT INTO seat (Flight, ID, Status, Name, Surname, Document_Info, Date_of_Birth, Balance) VALUES " + l3 + ";");
-                    query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
-                    session.execute(query);
+                    try {
+                        SimpleStatement query = SimpleStatement.newInstance("INSERT INTO seat (Flight, ID, Status, Name, Surname, Document_Info, Date_of_Birth, Balance) VALUES " + l3 + ";");
+                        query = query.setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM);
+                        session.execute(query);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
         }
@@ -296,6 +344,18 @@ public class App {
                 }
             }
 
+            //Test Parallel Transaction
+            System.out.println("parrallelTransaction");
+            User user1 = new User(200, "2001-11-14", "CA11111XT", "Mario", "Verdi");
+            User user2 = new User(300, "2000-12-01", "CAAAAAAAA", "Luca", "Rossi");
+            parrallelTransaction(session, user1, user2, "BGY", "AAL");
+
+            try {
+                Thread.sleep(5000); //Just to "free" the knots
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
             //Test Query getFlightsFromAirport
             System.out.println("getFlightsFromAirport");
             System.out.println(getFlightsFromAirport(session, "BGY"));
@@ -320,9 +380,8 @@ public class App {
                 throw new RuntimeException(e);
             }
 
-            User user1 = new User(200, "2001-11-14", "CA11111XT", "Mario", "Verdi");
-
             //Test Simple Transaction
+            user1.setBalance(300);
             System.out.println("transaction");
             transaction(session, user1, "BGY", "AAL");
 
@@ -330,18 +389,6 @@ public class App {
             System.out.println("transaction with no balance");
             user1.setBalance(0);
             transaction(session, user1, "BGY", "AAL");
-
-            //Test Parallel Transaction
-            user1.setBalance(300);
-            User user2 = new User(300, "2000-12-01", "CAAAAAAAA", "Luca", "Rossi");
-
-            try {
-                Thread.sleep(5000); //Just to "free" the knots
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            System.out.println("parrallelTransaction");
-            parrallelTransaction(session, user1, user2, "BGY", "AAL");
         }
     }
 }

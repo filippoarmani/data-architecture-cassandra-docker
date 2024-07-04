@@ -1,0 +1,30 @@
+Trace ID: c151281a-3a2f-11ef-9bb1-0f67a87d0426
+/172.30.0.2 Preparing c156f472-3a2f-11ef-c9d4-a4b8589ef39a 41340ms
+/172.30.0.2 Promising ballot c156f472-3a2f-11ef-c9d4-a4b8589ef39a 54533ms
+/172.30.0.2 Appending to commitlog 60670ms
+/172.30.0.2 Adding to paxos memtable 61286ms
+/172.30.0.2 Reading existing values for CAS precondition 68610ms
+/172.30.0.2 Executing single-partition query on seat 70832ms
+/172.30.0.2 Acquiring sstable references 71145ms
+/172.30.0.2 Merging memtable contents 71372ms
+/172.30.0.2 Read 1 live rows and 0 tombstone cells 72515ms
+/172.30.0.2 CAS precondition is met; proposing client-requested updates for c156f472-3a2f-11ef-c9d4-a4b8589ef39a 87881ms
+/172.30.0.2 Rejecting proposal for Accepted(139394090253350002:c156f472-3a2f-11ef-c9d4-a4b8589ef39a, 1720116225335000:key=6677f9a27acf35542d8ef4df
+    Row: id=11E | balance=174, date_of_birth=2000-12-01, document_info=CAAAAAAAA, name=Luca, status=Occupied, surname=Rossi) because inProgress is now c1587b12-3a2f-11ef-da45-6843ca902dd1 94375ms
+/172.30.0.2 Paxos proposal not accepted (pre-empted by a higher ballot) 95414ms
+/172.30.0.2 Preparing c1621802-3a2f-11ef-110e-7f625f30ee43 110763ms
+/172.30.0.2 Promising ballot c1621802-3a2f-11ef-110e-7f625f30ee43 112032ms
+/172.30.0.2 Appending to commitlog 112670ms
+/172.30.0.2 Adding to paxos memtable 112945ms
+/172.30.0.2 Reading existing values for CAS precondition 114621ms
+/172.30.0.2 Executing single-partition query on seat 115328ms
+/172.30.0.2 Acquiring sstable references 115805ms
+/172.30.0.2 Merging memtable contents 116994ms
+/172.30.0.2 Read 1 live rows and 0 tombstone cells 118135ms
+/172.30.0.2 CAS precondition does not match current values [my_airport.seat] key=6677f9a27acf35542d8ef4df partition_deletion=deletedAt=-9223372036854775808, localDeletion=2147483647 columns=[[] | [balance date_of_birth document_info name status surname]]
+    Row[info=[ts=1720115220302524] ]: id=11E | [balance=74 ts=1720116225345000], [date_of_birth=2001-11-14 ts=1720116225345000], [document_info=CA11111XT ts=1720116225345000], [name=Mario ts=1720116225345000], [status=Occupied ts=1720116225345000], [surname=Verdi ts=1720116225345000] 128739ms
+/172.30.0.2 CAS precondition is met; proposing client-requested updates for c1621802-3a2f-11ef-110e-7f625f30ee43 129063ms
+/172.30.0.2 Accepting proposal Accepted(139394090254080002:c1621802-3a2f-11ef-110e-7f625f30ee43, 1442880000000000:key=6677f9a27acf35542d8ef4df) 130634ms
+/172.30.0.2 Appending to commitlog 131213ms
+/172.30.0.2 Adding to paxos memtable 131646ms
+/172.30.0.2 CAS did not apply 138740ms

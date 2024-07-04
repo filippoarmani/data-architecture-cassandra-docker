@@ -1,0 +1,22 @@
+Trace ID: c1512810-3a2f-11ef-9bb1-0f67a87d0426
+/172.30.0.2 Preparing c1587b12-3a2f-11ef-da45-6843ca902dd1 47694ms
+/172.30.0.2 Promising ballot c1587b12-3a2f-11ef-da45-6843ca902dd1 65716ms
+/172.30.0.2 Appending to commitlog 66332ms
+/172.30.0.2 Adding to paxos memtable 66706ms
+/172.30.0.2 Reading existing values for CAS precondition 69460ms
+/172.30.0.2 Executing single-partition query on seat 71186ms
+/172.30.0.2 Acquiring sstable references 71351ms
+/172.30.0.2 Merging memtable contents 71474ms
+/172.30.0.2 Read 1 live rows and 0 tombstone cells 72472ms
+/172.30.0.2 CAS precondition is met; proposing client-requested updates for c1587b12-3a2f-11ef-da45-6843ca902dd1 85767ms
+/172.30.0.2 Accepting proposal Accepted(139394090253450002:c1587b12-3a2f-11ef-da45-6843ca902dd1, 1720116225345000:key=6677f9a27acf35542d8ef4df
+    Row: id=11E | balance=74, date_of_birth=2001-11-14, document_info=CA11111XT, name=Mario, status=Occupied, surname=Verdi) 88749ms
+/172.30.0.2 Appending to commitlog 91469ms
+/172.30.0.2 Adding to paxos memtable 91883ms
+/172.30.0.2 Committing proposal Committed(139394090253450002:c1587b12-3a2f-11ef-da45-6843ca902dd1, 1720116225345000:key=6677f9a27acf35542d8ef4df
+    Row: id=11E | balance=74, date_of_birth=2001-11-14, document_info=CA11111XT, name=Mario, status=Occupied, surname=Verdi) 99883ms
+/172.30.0.2 Appending to commitlog 100387ms
+/172.30.0.2 Adding to seat memtable 101132ms
+/172.30.0.2 Appending to commitlog 108416ms
+/172.30.0.2 Adding to paxos memtable 108859ms
+/172.30.0.2 CAS applied successfully 110613ms

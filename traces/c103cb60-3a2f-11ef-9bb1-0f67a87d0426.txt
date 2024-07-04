@@ -1,0 +1,15 @@
+Trace ID: c103cb60-3a2f-11ef-9bb1-0f67a87d0426
+/172.30.0.2 Parsing SELECT * FROM flight WHERE departure='BGY' AND destination='AAL'; 19130ms
+/172.30.0.2 Preparing statement 20082ms
+/172.30.0.2 reading data from /172.30.0.3:7000 22532ms
+/172.30.0.2 Sending READ_REQ message to /172.30.0.3:7000 message size 144 bytes 33866ms
+/172.30.0.3 READ_REQ message received from /172.30.0.2:7000 3689ms
+/172.30.0.3 Executing single-partition query on flight 21765ms
+/172.30.0.3 Acquiring sstable references 22610ms
+/172.30.0.3 Skipped 0/0 non-slice-intersecting sstables, included 0 due to tombstones 36343ms
+/172.30.0.3 Merged data from memtables and 0 sstables 57516ms
+/172.30.0.3 Read 1 live rows and 0 tombstone cells 61099ms
+/172.30.0.3 Enqueuing response to /172.30.0.2:7000 62766ms
+/172.30.0.3 Sending READ_RSP message to cassandra-node1/172.30.0.2:7000 message size 142 bytes 68106ms
+/172.30.0.2 READ_RSP message received from /172.30.0.3:7000 162749ms
+/172.30.0.2 Processing response from /172.30.0.3:7000 164269ms

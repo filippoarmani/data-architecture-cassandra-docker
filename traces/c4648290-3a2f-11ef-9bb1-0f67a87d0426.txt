@@ -1,0 +1,8 @@
+Trace ID: c4648290-3a2f-11ef-9bb1-0f67a87d0426
+/172.30.0.2 Parsing SELECT * FROM seat WHERE flight='6677f9a27acf35542d8ef4df'; 1188ms
+/172.30.0.2 Preparing statement 1763ms
+/172.30.0.2 Executing single-partition query on seat 4002ms
+/172.30.0.2 Acquiring sstable references 4371ms
+/172.30.0.2 Skipped 0/0 non-slice-intersecting sstables, included 0 due to tombstones 5085ms
+/172.30.0.2 Merged data from memtables and 0 sstables 6948ms
+/172.30.0.2 Read 100 live rows and 0 tombstone cells 7325ms

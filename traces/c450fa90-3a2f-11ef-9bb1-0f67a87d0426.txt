@@ -1,0 +1,14 @@
+Trace ID: c450fa90-3a2f-11ef-9bb1-0f67a87d0426
+/172.30.0.2 Parsing SELECT * FROM airport WHERE IATA_code='BGY'; 570ms
+/172.30.0.2 Preparing statement 955ms
+/172.30.0.2 reading data from /172.30.0.3:7000 2323ms
+/172.30.0.2 Sending READ_REQ message to /172.30.0.3:7000 message size 168 bytes 2867ms
+/172.30.0.3 READ_REQ message received from /172.30.0.2:7000 187ms
+/172.30.0.3 Executing single-partition query on airport 1008ms
+/172.30.0.3 Acquiring sstable references 3563ms
+/172.30.0.3 Merging memtable contents 5871ms
+/172.30.0.3 Read 1 live rows and 0 tombstone cells 15767ms
+/172.30.0.3 Enqueuing response to /172.30.0.2:7000 16168ms
+/172.30.0.3 Sending READ_RSP message to cassandra-node1/172.30.0.2:7000 message size 315 bytes 16535ms
+/172.30.0.2 READ_RSP message received from /172.30.0.3:7000 21691ms
+/172.30.0.2 Processing response from /172.30.0.3:7000 22290ms
